@@ -10,7 +10,7 @@ def create_transcripts(podcast_list, **kwargs):
 		podcast_metadata = {}
 		downloads = os.listdir(podcast.download_directory)
 		for download in downloads:
-			print("Processing", download)
+			print("Uploading", download)
 			file_path = f'{podcast.download_directory}/{download}'
 			content_url = upload_to_assembly_ai(file_path)
 			transcription_id = transcribe_podcast(content_url, **kwargs)
@@ -66,8 +66,9 @@ def save_transcriptions_locally(podcast_list):
 		podcast_transcriptions = metadata[podcast.name]
 		for episode, transcription_id in podcast_transcriptions.items():
 			episode_name = os.path.splitext(episode)[0]
-			transcription = wait_and_get_assembly_ai_transcript(transcription_id)
 			output_path = f'{podcast.transcription_directory}/{episode_name}.txt'
+			print('Trying to save', output_path)
+			transcription = wait_and_get_assembly_ai_transcript(transcription_id)
 			with open(output_path, 'w') as f:
 				f.write(transcription['text'])
 
@@ -93,9 +94,10 @@ def wait_and_get_assembly_ai_transcript(transcription_id):
 	return response
 
 if __name__ == '__main__':
-	print("\n Transcribing podcasts... \n")
+	print("\n--- Transcribing podcasts... ---\n")
 	#podcast_list = [Podcast('tim-ferriss', 'https://rss.art19.com/tim-ferriss-show')]
 	podcast_list = [Podcast('lex-fridman', 'https://lexfridman.com/feed/podcast/')]
 	metadata = create_transcripts(podcast_list, audio_start_from=600000, audio_end_at=900000)
+	print('Uploaded transcripts')
 	save_transcription_metadata(metadata)
 	save_transcriptions_locally(podcast_list)
